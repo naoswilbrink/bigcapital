@@ -71,7 +71,8 @@ const percentageColumnAccessor = () => ({
 
 const isColumnKey = (key: CustomersBalanceColumnKey) => R.pathEq(['key'], key);
 
-const dynamicColumns = (columns) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const dynamicColumns = (columns: any[]) => {
   return R.map(
     R.compose(
       R.when(isColumnKey('name'), accountNameColumnAccessor),

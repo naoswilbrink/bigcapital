@@ -106,7 +106,6 @@ export function ReceiptPaperTemplate({
   companyLogoUri,
 
   // # Company name
-  companyName = 'Bigcapital Technology, Inc.',
 
   // # Address
   showCustomerAddress = true,

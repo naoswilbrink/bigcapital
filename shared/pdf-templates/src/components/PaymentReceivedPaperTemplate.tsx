@@ -66,7 +66,6 @@ export function PaymentReceivedPaperTemplate({
   companyLogoUri,
 
   // # Company name
-  companyName = 'Bigcapital Technology, Inc.',
 
   // # Customer address
   showCustomerAddress = true,

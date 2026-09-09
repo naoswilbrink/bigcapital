@@ -1,4 +1,5 @@
 import { AnchorButton } from '@blueprintjs/core';
+import type { BalanceSheetPdfQuery } from '@bigcapital/sdk-ts';
 import { useBalanceSheetContext } from '../../BalanceSheetProvider';
 import {
   DialogContent,
@@ -9,26 +10,20 @@ import { useBalanceSheetPdf } from '@/hooks/query';
 
 export function BalanceSheetPdfDialogContent() {
   const { httpQuery } = useBalanceSheetContext();
-  const { isLoading, isLoaded, pdfUrl } = useBalanceSheetPdf({ ...httpQuery });
+  const { isLoading, pdfUrl } = useBalanceSheetPdf(
+    httpQuery as BalanceSheetPdfQuery,
+  );
 
   return (
     <DialogContent>
       <div className="dialog__header-actions">
-        <AnchorButton
-          href={pdfUrl}
-          target={'__blank'}
-          disabled={!isLoaded}
-          small
-          minimal
-          outlined
-        >
+        <AnchorButton href={pdfUrl} target={'__blank'} small minimal outlined>
           <T id={'pdf_preview.preview.button'} />
         </AnchorButton>
 
         <AnchorButton
           href={pdfUrl}
           download={'invoice.pdf'}
-          disabled={!isLoaded}
           small
           minimal
           outlined

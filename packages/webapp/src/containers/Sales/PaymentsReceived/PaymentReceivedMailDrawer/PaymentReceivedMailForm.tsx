@@ -1,5 +1,6 @@
 import { Intent } from '@blueprintjs/core';
 import { css } from '@emotion/css';
+import type { SendPaymentReceiveMailBody } from '@bigcapital/sdk-ts';
 import { Form, Formik, FormikHelpers } from 'formik';
 import { PaymentReceivedSendMailFormSchema } from './_types';
 import { PaymentReceivedSendMailFormValues } from './_types';
@@ -43,7 +44,10 @@ export function PaymentReceivedSendMailForm({
     { setSubmitting }: FormikHelpers<PaymentReceivedSendMailFormValues>,
   ) => {
     setSubmitting(true);
-    sendPaymentMail([paymentReceivedId, values])
+    sendPaymentMail([
+      paymentReceivedId,
+      values as unknown as SendPaymentReceiveMailBody,
+    ])
       .then(() => {
         AppToaster.show({
           message: 'The invoice mail has been sent to the customer.',

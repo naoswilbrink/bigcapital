@@ -63,7 +63,7 @@ export type GetBankingTransactionsQuery = OpQueryParams<
 /** Server returns { transactions, pagination } (OpenAPI schema says data). */
 export type BankingTransactionsListResponse = OpResponseBody<
   OpForPath<typeof BANKING_ACCOUNTS_ROUTES.TRANSACTIONS, 'get'>
-> & { transactions?: unknown[] };
+> & { transactions?: BankingTransactionResponse[] };
 
 /** Query params for GET /api/banking/uncategorized/accounts/{accountId}. */
 export type GetUncategorizedTransactionsQuery = OpQueryParams<

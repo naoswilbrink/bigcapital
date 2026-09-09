@@ -24,7 +24,7 @@ export function Stack({
     <x.div
       display={'flex'}
       flexDirection="column"
-      justifyContent="justify"
+      justifyContent={justify}
       gap={`${spacing}px`}
       alignItems={align}
       {...restProps}

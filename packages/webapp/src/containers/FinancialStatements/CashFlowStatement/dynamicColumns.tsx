@@ -68,18 +68,26 @@ const totalMapper = (
 
 const isMatchesDateRange = (r: string) => R.match(/^date-range/g, r).length > 0;
 
+// Ramda's compose()/when() typings can't express a pipeline whose branches
+// return different shapes based on the runtime column key, though the
+// composition below is sound: exactly one `when` predicate matches per call.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const compose: any = R.compose;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const when: any = R.when;
+
 export const dynamicColumns = (
   columns: ReportTableColumn[],
   data: unknown[],
 ) => {
-  const mapper = (column, index) => {
-    return R.compose(
-      R.when(
+  const mapper = (column: ReportTableColumn, index: number) => {
+    return compose(
+      when(
         R.pathSatisfies(isMatchesDateRange, ['key']),
         R.curry(dateRangeMapper)(data, index),
       ),
-      R.when(isColumnKey('name'), accountNameMapper),
-      R.when(isColumnKey('total'), R.curry(totalMapper)(data, index)),
+      when(isColumnKey('name'), accountNameMapper),
+      when(isColumnKey('total'), R.curry(totalMapper)(data, index)),
     )(column);
   };
   return columns.map(mapper);

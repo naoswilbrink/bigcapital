@@ -7,9 +7,11 @@ import { getColumnWidth } from '@/utils';
 interface ReportTableColumn {
   key: string;
   label: string;
-  cellIndex: number;
+  cellIndex?: number;
   children?: ReportTableColumn[];
 }
+
+type AlignValue = (typeof Align)[keyof typeof Align];
 
 interface TableColumn {
   key: string;
@@ -18,12 +20,20 @@ interface TableColumn {
   className?: string;
   textOverview?: boolean;
   width?: number;
-  sticky?: Align;
-  align?: Align;
+  sticky?: AlignValue;
+  align?: AlignValue;
   disableSortBy?: boolean;
   money?: boolean;
   columns?: TableColumn[];
 }
+
+// Ramda's compose()/when() typings can't express pipelines whose branches
+// return different shapes based on the runtime column key, though the
+// compositions below are sound: exactly one `when` predicate matches per call.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const compose: any = R.compose;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const when: any = R.when;
 
 const getTableCellValueAccessor = (index: number) => `cells[${index}].value`;
 
@@ -47,7 +57,7 @@ const getReportColWidth = (
  */
 const accountNameMapper = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -79,7 +89,7 @@ const dateRangeSoloColumnAttrs = (
   data: unknown[],
   column: ReportTableColumn,
 ): Partial<TableColumn> => {
-  const accessor = getTableCellValueAccessor(column.cellIndex);
+  const accessor = getTableCellValueAccessor(column.cellIndex!);
 
   return {
     accessor,
@@ -93,7 +103,7 @@ const dateRangeSoloColumnAttrs = (
 const totalMapper = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
     const hasChildren = !isEmpty(column.children);
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     const columnAccessor: TableColumn = {
@@ -106,8 +116,8 @@ const totalMapper = R.curry(
       money: true,
       align: hasChildren ? Align.Center : Align.Right,
     };
-    return R.compose(
-      R.when(R.always(hasChildren), assocColumnsToTotalColumn(data, column)),
+    return compose(
+      when(R.always(hasChildren), assocColumnsToTotalColumn(data, column)),
     )(columnAccessor);
   },
 );
@@ -117,7 +127,7 @@ const totalMapper = R.curry(
  */
 const percentageOfColumnAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -138,7 +148,7 @@ const percentageOfColumnAccessor = R.curry(
  */
 const percentageOfRowAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -159,7 +169,7 @@ const percentageOfRowAccessor = R.curry(
  */
 const previousYearAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -180,7 +190,7 @@ const previousYearAccessor = R.curry(
  */
 const previousYearChangeAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -201,7 +211,7 @@ const previousYearChangeAccessor = R.curry(
  */
 const previousYearPercentageAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -222,7 +232,7 @@ const previousYearPercentageAccessor = R.curry(
  */
 const previousPeriodAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -243,7 +253,7 @@ const previousPeriodAccessor = R.curry(
  */
 const previousPeriodChangeAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -264,7 +274,7 @@ const previousPeriodChangeAccessor = R.curry(
  */
 const previousPeriodPercentageAccessor = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    const accessor = getTableCellValueAccessor(column.cellIndex);
+    const accessor = getTableCellValueAccessor(column.cellIndex!);
     const width = getReportColWidth(data, accessor, column.label);
 
     return {
@@ -288,31 +298,31 @@ const previousPeriodPercentageAccessor = R.curry(
  */
 const totalColumnsMapper = R.curry(
   (data: unknown[], column: ReportTableColumn): TableColumn => {
-    return R.compose(
-      R.when(isColumnKey('total'), totalMapper(data)),
+    return compose(
+      when(isColumnKey('total'), totalMapper(data)),
       // Percetage of column/row.
-      R.when(
+      when(
         isColumnKey('percentage_of_column'),
         percentageOfColumnAccessor(data),
       ),
-      R.when(isColumnKey('percentage_of_row'), percentageOfRowAccessor(data)),
+      when(isColumnKey('percentage_of_row'), percentageOfRowAccessor(data)),
       // Previous year.
-      R.when(isColumnKey('previous_year'), previousYearAccessor(data)),
-      R.when(
+      when(isColumnKey('previous_year'), previousYearAccessor(data)),
+      when(
         isColumnKey('previous_year_change'),
         previousYearChangeAccessor(data),
       ),
-      R.when(
+      when(
         isColumnKey('previous_year_percentage'),
         previousYearPercentageAccessor(data),
       ),
       // Pervious period.
-      R.when(isColumnKey('previous_period'), previousPeriodAccessor(data)),
-      R.when(
+      when(isColumnKey('previous_period'), previousPeriodAccessor(data)),
+      when(
         isColumnKey('previous_period_change'),
         previousPeriodChangeAccessor(data),
       ),
-      R.when(
+      when(
         isColumnKey('previous_period_percentage'),
         previousPeriodPercentageAccessor(data),
       ),
@@ -358,12 +368,12 @@ const dateRangeMapper = R.curry(
       money: true,
       align: isDateColumnHasColumns ? Align.Center : Align.Right,
     };
-    return R.compose(
-      R.when(
+    return compose(
+      when(
         R.always(isDateColumnHasColumns),
         assocColumnsToTotalColumn(data, column),
       ),
-      R.when(
+      when(
         R.always(!isDateColumnHasColumns),
         R.mergeLeft(dateRangeSoloColumnAttrs(data, column)),
       ),
@@ -386,13 +396,10 @@ const dynamicColumnMapper = R.curry(
     const indexAccountNameMapper = accountNameMapper(data);
     const indexDatePeriodMapper = dateRangeMapper(data);
 
-    return R.compose(
-      R.when(
-        R.pathSatisfies(isMatchesDateRange, ['key']),
-        indexDatePeriodMapper,
-      ),
-      R.when(isColumnKey('name'), indexAccountNameMapper),
-      R.when(isColumnKey('total'), indexTotalMapper),
+    return compose(
+      when(R.pathSatisfies(isMatchesDateRange, ['key']), indexDatePeriodMapper),
+      when(isColumnKey('name'), indexAccountNameMapper),
+      when(isColumnKey('total'), indexTotalMapper),
     )(column);
   },
 );

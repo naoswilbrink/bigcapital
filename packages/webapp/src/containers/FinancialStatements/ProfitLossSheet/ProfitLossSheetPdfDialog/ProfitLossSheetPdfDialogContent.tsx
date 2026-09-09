@@ -1,4 +1,5 @@
 import { AnchorButton } from '@blueprintjs/core';
+import type { ProfitLossPdfQuery } from '@bigcapital/sdk-ts';
 import { useProfitLossSheetContext } from '../ProfitLossProvider';
 import {
   DialogContent,
@@ -9,7 +10,9 @@ import { useProfitLossSheetPdf } from '@/hooks/query';
 
 export function ProfitLossSheetPdfDialogContent() {
   const { httpQuery } = useProfitLossSheetContext();
-  const { isLoading, pdfUrl } = useProfitLossSheetPdf(httpQuery);
+  const { isLoading, pdfUrl } = useProfitLossSheetPdf(
+    httpQuery as ProfitLossPdfQuery,
+  );
 
   return (
     <DialogContent>

@@ -1,3 +1,4 @@
+import type { JournalTableQuery } from '@bigcapital/sdk-ts';
 import moment from 'moment';
 import React from 'react';
 import { useAppQueryString } from '@/hooks';
@@ -17,13 +18,15 @@ export const getDefaultJournalQuery = () => {
 /**
  * Parses balance sheet query.
  */
-const parseJournalQuery = (locationQuery: Record<string, unknown>) => {
+const parseJournalQuery = (
+  locationQuery: Record<string, unknown>,
+): JournalTableQuery => {
   const defaultQuery = getDefaultJournalQuery();
 
   return {
     ...defaultQuery,
     ...transformToForm(locationQuery, defaultQuery),
-  };
+  } as unknown as JournalTableQuery;
 };
 
 /**

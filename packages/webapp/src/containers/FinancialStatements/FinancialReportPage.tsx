@@ -10,12 +10,17 @@ interface FinancialReportPageProps {
   children?: React.ReactNode;
 }
 
-export function FinancialReportPage(props: FinancialReportPageProps) {
+export function FinancialReportPage({
+  children = null,
+  ...props
+}: FinancialReportPageProps) {
   return (
     <FinancialReportPageRoot
       {...props}
       className={classNames(CLASSES.FINANCIAL_REPORT_INSIDER, props.className)}
-    />
+    >
+      {children}
+    </FinancialReportPageRoot>
   );
 }
 

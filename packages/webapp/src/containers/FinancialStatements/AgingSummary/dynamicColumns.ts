@@ -77,7 +77,12 @@ const dynamicColumnMapper = R.curry(
     const customerNameAccessorColumn = contactNameAccessor(data);
     const agingPeriodAccessorColumn = agingPeriodAccessor(data);
 
-    return R.compose(
+    // Ramda's compose() typings can't express a pipeline whose branches
+    // return different shapes based on the runtime column key, though the
+    // composition itself is sound: exactly one `when` predicate matches.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const compose: any = R.compose;
+    return compose(
       R.when(isColumnKey('total'), totalAccessorColumn),
       R.when(isColumnKey('current'), currentAccessorColumn),
       R.when(isColumnKey('customer_name'), customerNameAccessorColumn),

@@ -332,8 +332,11 @@ const accountNameColumn = R.curry((data, column) => {
  * @param {*} column
  * @returns
  */
-const dateRangeSoloColumnAttrs = (data, column) => {
-  const accessor = getTableCellValueAccessor(column.cellIndex);
+const dateRangeSoloColumnAttrs = (
+  data: unknown[],
+  column: ReportTableColumn,
+) => {
+  const accessor = getTableCellValueAccessor(column.cellIndex!);
 
   return {
     accessor,
@@ -355,12 +358,19 @@ const dateRangeColumn = R.curry((data, column) => {
     align: isDateColumnHasColumns ? Align.Center : Align.Right,
     money: true,
   };
-  return R.compose(
-    R.when(
+  // Ramda's compose()/when() typings can't express a pipeline whose branches
+  // return different shapes based on the runtime column key, though the
+  // composition below is sound: exactly one `when` predicate matches.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const compose: any = R.compose;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const when: any = R.when;
+  return compose(
+    when(
       R.always(isDateColumnHasColumns),
       assocColumnsToTotalColumn(data, column),
     ),
-    R.when(
+    when(
       R.always(!isDateColumnHasColumns),
       R.mergeLeft(dateRangeSoloColumnAttrs(data, column)),
     ),

@@ -85,6 +85,7 @@ PaperTemplate.Logo = ({ logoUri }: PaperTemplateLogoProps) => {
 
 interface PaperTemplateTableProps {
   columns: Array<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     accessor: string | ((data: Record<string, any>) => JSX.Element);
     label: string;
     value?: JSX.Element;
@@ -92,6 +93,7 @@ interface PaperTemplateTableProps {
     thStyle?: React.CSSProperties;
     visible?: boolean;
   }>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Array<Record<string, any>>;
 }
 
@@ -152,7 +154,7 @@ PaperTemplate.Table = ({ columns, data }: PaperTemplateTableProps) => {
       </thead>
 
       <tbody>
-        {data.map((_data: any) => (
+        {data.map((_data) => (
           <tr>
             {filteredColumns.map((column, index) => (
               <x.td textAlign={column.align} key={index}>
@@ -204,7 +206,7 @@ PaperTemplate.TotalLine = ({
   label: string;
   amount: string;
   border?: PaperTemplateTotalBorder;
-  style?: any;
+  style?: React.CSSProperties;
 }) => {
   return (
     <x.div
