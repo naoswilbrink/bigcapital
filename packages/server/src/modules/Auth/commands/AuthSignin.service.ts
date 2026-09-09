@@ -107,6 +107,10 @@ export class AuthSigninService {
 
   /**
    * Returns the tenant only when the user is a member and the tenant is active.
+   * Self-heals the case where a user has a legacy/default tenant reference on
+   * their own record but is missing the corresponding membership row (e.g.
+   * the account was never linked to that workspace), by creating it on the
+   * fly instead of locking the user out.
    */
   private async tryGetActiveTenantForUser(
     userId: number,
@@ -118,8 +122,20 @@ export class AuthSigninService {
       .withGraphFetched('tenant')
       .first();
 
-    if (!membership?.tenant?.isActive) return null;
-    return membership.tenant;
+    if (membership) {
+      return membership.tenant?.isActive ? membership.tenant : null;
+    }
+
+    const tenant = await this.tenantModel.query().findById(tenantId);
+    if (!tenant?.isActive) return null;
+
+    await this.userTenantModel
+      .query()
+      .insert({ userId, tenantId, role: 'owner' })
+      .onConflict(['userId', 'tenantId'])
+      .ignore();
+
+    return tenant;
   }
 
   /**
